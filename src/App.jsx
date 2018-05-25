@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import { Grid, Row, Col, Button } from 'react-bootstrap'
 
+import Fretboard from './fretboard'
+
 class App extends Component {
   render() {
     return (
@@ -29,6 +31,7 @@ class App extends Component {
             <Row>
               <Col xs={12}>
                 <div>Fretboard</div>
+                <Fretboard />
               </Col>
             </Row>
           </Col>

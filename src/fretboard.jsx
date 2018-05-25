@@ -1,9 +1,18 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import _ from 'underscore'
 
 const double = [12]
 const dots = [3, 5, 7, 9, 15, 17]
+const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+const INTERVAL_COLOR_MAP = {
+  first: 'red',
+  second: 'grey',
+  third: 'blue',
+  fourth: 'yellow',
+  fifth: 'purple',
+  sixth: 'orange',
+  seventh: 'green',
+}
 
 class Fretboard extends React.Component {
   state = {
@@ -19,27 +28,50 @@ class Fretboard extends React.Component {
       note: 'B',
     }, {
       note: 'E',
-    }]
+    }],
+    rootNote: 'A',
+  }
+
+  handleClick = (fretIdx, strIdx) => {
+    console.log('starting at: ', fretIdx, strIdx)
   }
 
   render() {
-    const { strings } = this.state
+    const { strings, rootNote } = this.state
+    const { intervals } = this.props
 
     const frets = Array.apply(null, {length: 21}).map(Number.call, Number)
 
     const fret = (f, idx) => {
       const isLastString = idx === 5
       const isSecondLastString = idx === 4
+      const isFirstFret = f === 0
       const isLastFret = f === 20
       const isSingleFretDot = _.contains(dots, f) && idx === 2
       const isDoubleFretDot = _.contains(double, f) && (idx === 1 || idx === 3)
       const isFretDot = isSingleFretDot || isDoubleFretDot
 
-      const style = {
-        height: '40px',
-        width: '40px',
-        borderTop: '3px solid black',
-        borderLeft: '3px solid black',
+
+      const string = strings[idx]
+      const { note } = string
+      const startNoteIndex = _.indexOf(notes, note)
+      const rootIndex = _.indexOf(notes, rootNote)
+      const currentNoteIndex = ((startNoteIndex + f) % 12)
+      const intervalIndex = currentNoteIndex - rootIndex
+      const currentNote = notes[currentNoteIndex]
+      const currentInterval = intervals[intervalIndex]
+      const { selected, type, roman } = currentInterval
+
+      let style = {
+        position: 'relative'
+      }
+
+      if (!isFirstFret) {
+        style.height = '40px'
+        style.width = '40px'
+        style.borderTop = '3px solid black',
+        style.borderLeft = '3px solid black',
+        style.backgroundColor = 'brown'
       }
 
       if (isLastString) {
@@ -47,7 +79,7 @@ class Fretboard extends React.Component {
         style.borderLeft = 'none'
       }
 
-      if (isSecondLastString) {
+      if (isSecondLastString && !isFirstFret) {
         style.borderRight = '3px solid black'
         style.width = '43px'
       }
@@ -58,17 +90,39 @@ class Fretboard extends React.Component {
       }
 
       return (
-        <div style={style}>
-          {isFretDot && 
-            <div style={{
-              width: '6px',
-              height: '6px',
-              backgroundColor: 'black',
-              position: 'relative',
-              top: '15px',
-              left: '15px',
-              borderRadius: '3px',
-            }} />
+        <div
+          style={style}
+          onClick={() => this.handleClick(f, idx)}
+          key={JSON.stringify({ f, idx, type: 'fret' })}
+        >
+          {selected && !isFirstFret &&
+            <div
+              style={{
+                width: '25px',
+                height: '25px',
+                borderRadius: '12px',
+                backgroundColor: INTERVAL_COLOR_MAP[type],
+                position: 'relative',
+                left: '-14px',
+                top: '8px',
+                border: '1px solid black',
+              }}
+            >
+              <span style={{ paddingLeft: '10px', textAlign: 'center' }}>{roman}</span>
+            </div>
+          }
+          {isFretDot && !isFirstFret &&
+            <div
+              style={{
+                width: '6px',
+                height: '6px',
+                backgroundColor: 'black',
+                position: 'absolute',
+                top: '15px',
+                left: '15px',
+                borderRadius: '3px',
+              }}
+            />
           }
         </div>
       )
@@ -80,7 +134,6 @@ class Fretboard extends React.Component {
         display: 'flex',
         flexDirection: 'column',
         flexWrap: 'nowrap',
-        backgroundColor: 'brown',
       }
 
       if (isLastString) {
@@ -88,7 +141,7 @@ class Fretboard extends React.Component {
       }
 
       return (
-        <div>
+        <div key={JSON.stringify({ string, idx })}>
           <div>{string.note}</div>
           <div
             style={style}
@@ -111,14 +164,6 @@ class Fretboard extends React.Component {
       </div>
     )
   }
-}
-
-Fretboard.propTypes = {
-
-}
-
-Fretboard.defaultProps = {
-
 }
 
 export default Fretboard

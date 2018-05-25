@@ -1,5 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import _ from 'underscore'
+
+const double = [12]
+const dots = [3, 5, 7, 9, 15, 17]
 
 class Fretboard extends React.Component {
   state = {
@@ -27,6 +31,9 @@ class Fretboard extends React.Component {
       const isLastString = idx === 5
       const isSecondLastString = idx === 4
       const isLastFret = f === 20
+      const isSingleFretDot = _.contains(dots, f) && idx === 2
+      const isDoubleFretDot = _.contains(double, f) && (idx === 1 || idx === 3)
+      const isFretDot = isSingleFretDot || isDoubleFretDot
 
       const style = {
         height: '40px',
@@ -51,7 +58,19 @@ class Fretboard extends React.Component {
       }
 
       return (
-        <div style={style} />
+        <div style={style}>
+          {isFretDot && 
+            <div style={{
+              width: '6px',
+              height: '6px',
+              backgroundColor: 'black',
+              position: 'relative',
+              top: '15px',
+              left: '15px',
+              borderRadius: '3px',
+            }} />
+          }
+        </div>
       )
     }
 

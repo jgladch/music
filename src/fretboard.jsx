@@ -2,9 +2,14 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 class Fretboard extends React.Component {
+  state = {
+    fart: true
+  }
+
   render() {
+    const { fart }
     return (
-      <div>Fretboard!!</div>
+      {fart && <div>Fretboard!!</div>}    
     )
   }
 }
